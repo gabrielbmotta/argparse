@@ -11,7 +11,8 @@
 
 typedef void* arg_parser_t;
 
-EXTERNC arg_parser_t create_arg_parser();
+EXTERNC arg_parser_t create_arg_parser(char* name, char* version);
+EXTERNC arg_parser_t create_nameless_arg_parser();
 EXTERNC void add_argument(arg_parser_t parser, arg* input_arg);
 EXTERNC void parse_args(arg_parser_t parser, int argc, char* argv[]);
 EXTERNC void delete_parser(arg_parser_t parser);
@@ -25,13 +26,14 @@ EXTERNC void delete_parser(arg_parser_t parser);
 
 class ArgParser{
 public:
-    ArgParser();
-    ArgParser(std::string app_name, std::string app_version = "");
+    ArgParser(const char* = "", const char* app_version = "");
     void addArgument(const arg& input_arg);
     bool parseArguments(int in_argc, char* in_argv[]);
+    bool helpMode();
 
     void printErrors();
 private:
+    void printHelpText();
     void parseLongArg(int index);
     void parseShortArg(int index);
 
@@ -39,6 +41,11 @@ private:
 
     int argc;
     char** argv;
+
+    const char* name;
+    const char* version;
+
+    bool help;
 
     std::vector<arg> args;
     std::vector<std::string> error_status;
