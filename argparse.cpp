@@ -3,12 +3,20 @@
 #endif
 
 #include "argparse.h"
-#include "argtypes.h"
 #include <cstddef>
 #include <cstring>
 #include <cstdio>
 #include <string>
 #include <iostream>
+
+arg::arg(arg_type in_t, void* in_value, const char * in_argument, const char * in_short_argument, const char * in_description)
+: t(in_t)
+, value(in_value)
+, argument(in_argument)
+, short_argument(in_short_argument)
+, description(in_description)  
+{
+}
 
 ArgParser::ArgParser(const char* app_name, const char* app_version)
 :name(app_name)

@@ -4,8 +4,6 @@ project(argparse)
 set(CXX_STANDARD 11)
 
 set(LIB_SOURCES
-        argtypes.h
-        argtypes.cpp
         argparse.h
         argparse.cpp
 )
