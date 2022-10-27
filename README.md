@@ -31,4 +31,11 @@ my_app -i
 ## Help command
 `--help` will print a list of all known commands with description text.
 
-## How to use
+## Building
+
+```
+cmake -B build .
+cmake --build build
+```
+
+If you don't want the example apps, change `set(EXAMPLES TRUE)` to `set(EXAMPLES FALSE)` in CMakeLists.txt.

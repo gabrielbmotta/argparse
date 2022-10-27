@@ -10,8 +10,12 @@ set(LIB_SOURCES
 
 add_library(${PROJECT_NAME} ${LIB_SOURCES})
 
-add_executable(${PROJECT_NAME}_testcpp test.cpp)
-target_link_libraries(${PROJECT_NAME}_testcpp PUBLIC ${PROJECT_NAME})
+set(EXAMPLES TRUE)
 
-add_executable(${PROJECT_NAME}_testc test.c)
-target_link_libraries(${PROJECT_NAME}_testc PUBLIC ${PROJECT_NAME})
+if(EXAMPLES)
+        add_executable(${PROJECT_NAME}_testcpp example.cpp)
+        target_link_libraries(${PROJECT_NAME}_testcpp PUBLIC ${PROJECT_NAME})
+
+        add_executable(${PROJECT_NAME}_testc example.c)
+        target_link_libraries(${PROJECT_NAME}_testc PUBLIC ${PROJECT_NAME})
+endif()
