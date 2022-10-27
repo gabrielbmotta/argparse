@@ -7,7 +7,7 @@ int main(int argc, char*argv[])
     arg_parser_t ap = create_arg_parser("Parse Test", "v0.0.1");
 
     int item = 0;
-    arg item_arg = {.t = int_arg, .value = &item,
+    cmdl_arg item_arg = {.t = int_arg, .value = &item,
                    .argument = "--item", .short_argument = "-i",
                    .description = "This value does things."};
 

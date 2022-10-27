@@ -14,7 +14,7 @@ typedef enum arg_parse_status{
     error
 } arg_parse_status;
 
-typedef struct arg{
+typedef struct cmdl_arg{
     arg_type t;
     void* value;
     const char * argument;
@@ -22,13 +22,13 @@ typedef struct arg{
     const char * description;
 
 #ifdef __cplusplus
-    arg(arg_type in_t = string_arg,
+    cmdl_arg(arg_type in_t = string_arg,
         void* in_value = nullptr,
         const char * in_argument = "",
         const char * in_short_argument = "",
         const char * in_description = "");
 #endif
-} arg;
+} cmdl_arg;
 
 #ifdef __cplusplus
 #define EXTERNC extern "C"
@@ -40,10 +40,13 @@ typedef void* arg_parser_t;
 
 EXTERNC arg_parser_t create_arg_parser(char* name, char* version);
 EXTERNC arg_parser_t create_nameless_arg_parser();
-EXTERNC void add_argument(arg_parser_t parser, arg* input_arg);
-EXTERNC arg_parse_status parse_args(arg_parser_t parser, int argc, char* argv[]);
-EXTERNC void print_errors(arg_parser_t parser);
 EXTERNC void delete_parser(arg_parser_t parser);
+
+EXTERNC void add_argument(arg_parser_t parser, cmdl_arg* input_arg);
+EXTERNC arg_parse_status parse_args(arg_parser_t parser, int argc, char* argv[]);
+
+EXTERNC void print_errors(arg_parser_t parser);
+EXTERNC void print_help(arg_parser_t parser);
 
 #undef EXTERNC
 
@@ -55,31 +58,30 @@ EXTERNC void delete_parser(arg_parser_t parser);
 class ArgParser{
 public:
     ArgParser(const char* = "", const char* app_version = "");
-    void addArgument(const arg& input_arg);
+
+    void addArgument(const cmdl_arg& input_arg);
     arg_parse_status parseArguments(int in_argc, char* in_argv[]);
-    bool helpMode();
 
     void printErrors();
-private:
     void printHelpText();
+private:
     void parseLongArg(int index);
     void parseShortArg(int index);
     void parseDefaultArg(int index);
 
-    void setArgValue(arg& argument, int index);
+    void setArgValue(cmdl_arg& argument, int index);
 
-    int argc;
-    char** argv;
+    int _argc;
+    char** _argv;
 
-    bool next_read;
+    bool _next_read;
+    bool _help;
 
-    const char* name;
-    const char* version;
+    const char* _name;
+    const char* _version;
 
-    bool help;
-
-    std::vector<arg> args;
-    std::vector<std::string> error_status;
+    std::vector<cmdl_arg> _registered_args;
+    std::vector<std::string> _error_msgs;
 };
 
 #endif // __cplusplus
