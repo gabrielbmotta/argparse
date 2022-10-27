@@ -19,8 +19,9 @@ arg::arg(arg_type in_t, void* in_value, const char * in_argument, const char * i
 }
 
 ArgParser::ArgParser(const char* app_name, const char* app_version)
-:name(app_name)
-,version(app_version)
+: name(app_name)
+, version(app_version)
+, next_read(false)
 , help(false)
 {
 
@@ -31,12 +32,13 @@ void ArgParser::addArgument(const arg& input_arg)
     args.push_back(input_arg);
 }
 
-bool ArgParser::parseArguments(int in_argc, char* in_argv[])
+arg_parse_status ArgParser::parseArguments(int in_argc, char* in_argv[])
 {
     this->argc = in_argc;
     this->argv = in_argv;
     
     for(int i = 1; i < argc; ++i){
+        next_read = false;
         if(!std::strcmp("--help", argv[i])){
             printHelpText();
             help = true;
@@ -50,10 +52,22 @@ bool ArgParser::parseArguments(int in_argc, char* in_argv[])
             else {
                 parseShortArg(i);
             }
+        } else {
+
+        }
+        if(next_read){
+            ++i;
         }
     }
 
-    return error_status.empty();
+    if(helpMode()){
+        return arg_parse_status::help;
+    } else if (error_status.empty()){
+        return arg_parse_status::success;
+    } else {
+        return arg_parse_status::error;
+    }
+
 }
 
 bool ArgParser::helpMode()
@@ -108,18 +122,41 @@ void ArgParser::parseShortArg(int index)
         err += argv[index];
         err += " ]";
         error_status.push_back(err);
-    } else {
+    } else if(len > 2){
         for(auto i = 1; i < len; ++i){
+            bool found = false;
+            char c = argv[index][i];
             for(auto& argument : args){
-                if(!std::strcmp(argument.short_argument, argv[index])){
+                if(argument.short_argument[1] == c){
                     setArgValue(argument, index);
-                    return;
+                    found = true;
+                    break;
                 }
             }
-            
+            if(!found){
+                std::string err;
+                err += "Argument not recognized [ ";
+                err += c;
+                err += " ] in [ ";
+                err += argv[index];
+                err += " ]";
+                error_status.push_back(err);
+            }
+        }
+
+    }
+}
+
+void ArgParser::parseDefaultArg(int index)
+{
+    for(auto& argument : args){
+        if(!std::strcmp(argument.argument, argv[index])){
+            setArgValue(argument, index);
+            return;
         }
     }
 }
+
 
 void ArgParser::setArgValue(arg& argument, int index)
 {
@@ -139,6 +176,7 @@ void ArgParser::setArgValue(arg& argument, int index)
                 err += argument.short_argument;
                 error_status.push_back(err);
             }
+            next_read = true;
         } else {
             std::string err = "No argument provided for ";
             err += argument.argument;
@@ -164,6 +202,7 @@ void ArgParser::setArgValue(arg& argument, int index)
                 err += argument.short_argument;
                 error_status.push_back(err);
             }
+            next_read = true;
         } else {
             std::string err = "No argument provided for ";
             err += argument.argument;
@@ -179,6 +218,7 @@ void ArgParser::setArgValue(arg& argument, int index)
             auto* value = reinterpret_cast<const char*>(argument.value);
             size_t* idx;
             value = argv[index + 1];
+            next_read = true;
         } else {
             std::string err = "No argument provided for ";
             err += argument.argument;
@@ -214,10 +254,16 @@ void add_argument(arg_parser_t parser, arg* input_arg)
     my_parser->addArgument(*input_arg);
 }
 
-void parse_args(arg_parser_t parser, int argc, char* argv[])
+arg_parse_status parse_args(arg_parser_t parser, int argc, char* argv[])
 {
     auto* my_parser = static_cast<ArgParser*>(parser);
-    my_parser->parseArguments(argc, argv);
+    return my_parser->parseArguments(argc, argv);
+}
+
+void print_errors(arg_parser_t parser)
+{
+    auto* my_parser = static_cast<ArgParser*>(parser);
+    my_parser->printErrors();
 }
 
 void delete_parser(arg_parser_t parser)

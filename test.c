@@ -12,7 +12,15 @@ int main(int argc, char*argv[])
                    .description = "This value does things."};
 
     add_argument(ap, &item_arg);
-    parse_args(ap, argc, argv);
+    switch (parse_args(ap, argc, argv)){
+        case success:
+            printf("Item value is %d\n",item);
+        case help:
+            break;
+        case error:
+            print_errors(ap);
+            break;
+    }
 
-    printf("Input value was %d\n", item);
+    delete_parser(ap);
 }

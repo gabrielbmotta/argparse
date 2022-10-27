@@ -8,6 +8,12 @@ typedef enum arg_type{
     bool_arg
 } arg_type;
 
+typedef enum arg_parse_status{
+    success,
+    help,
+    error
+} arg_parse_status;
+
 typedef struct arg{
     arg_type t;
     void* value;
@@ -35,7 +41,8 @@ typedef void* arg_parser_t;
 EXTERNC arg_parser_t create_arg_parser(char* name, char* version);
 EXTERNC arg_parser_t create_nameless_arg_parser();
 EXTERNC void add_argument(arg_parser_t parser, arg* input_arg);
-EXTERNC void parse_args(arg_parser_t parser, int argc, char* argv[]);
+EXTERNC arg_parse_status parse_args(arg_parser_t parser, int argc, char* argv[]);
+EXTERNC void print_errors(arg_parser_t parser);
 EXTERNC void delete_parser(arg_parser_t parser);
 
 #undef EXTERNC
@@ -49,7 +56,7 @@ class ArgParser{
 public:
     ArgParser(const char* = "", const char* app_version = "");
     void addArgument(const arg& input_arg);
-    bool parseArguments(int in_argc, char* in_argv[]);
+    arg_parse_status parseArguments(int in_argc, char* in_argv[]);
     bool helpMode();
 
     void printErrors();
@@ -57,11 +64,14 @@ private:
     void printHelpText();
     void parseLongArg(int index);
     void parseShortArg(int index);
+    void parseDefaultArg(int index);
 
     void setArgValue(arg& argument, int index);
 
     int argc;
     char** argv;
+
+    bool next_read;
 
     const char* name;
     const char* version;

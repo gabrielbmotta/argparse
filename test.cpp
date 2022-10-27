@@ -10,11 +10,13 @@ int main(int argc, char*argv[])
     arg_parser.addArgument({arg_type::int_arg, &item, "--item", "-i",
                             "This value does things."});
 
-    if (arg_parser.parseArguments(argc, argv)){
-        if(!arg_parser.helpMode()){
-            std::cout << "Input value was " << item << "\n";
-        }
-    } else {
-        arg_parser.printErrors();
+    switch (arg_parser.parseArguments(argc, argv)){
+        case success:
+            std::cout << "Item value is " << item << "\n";
+        case help:
+            break;
+        case error:
+            arg_parser.printErrors();
+            break;
     }
 }
