@@ -9,6 +9,26 @@
 #include <string>
 #include <iostream>
 
+void composeString(std::string& str){
+    
+}
+
+template<typename T, typename... Types>
+void composeString(std::string& str, T var1, Types... var2){
+    str += var1;
+
+    composeString(str, var2...);
+} 
+
+template<typename... Types>
+void addToStringList(std::vector<std::string>& vec, Types... var){
+    std::string s;
+    composeString(s, var...);
+
+    vec.push_back(s);
+}
+
+
 cmdl_arg::cmdl_arg(arg_type in_t, void* in_value, const char * in_argument, const char * in_short_argument, const char * in_description)
 : t(in_t)
 , value(in_value)
@@ -94,11 +114,7 @@ void ArgParser::parseLongArg(int index)
             return;
         }
     }
-    std::string err;
-    err += "Argument not recognized [ ";
-    err += _argv[index];
-    err += " ]";
-    _error_msgs.push_back(err);
+    addToStringList(_error_msgs, "Argument not recognized [ ", _argv[index], " ]");
 }
 
 void ArgParser::parseShortArg(int index)
@@ -111,11 +127,7 @@ void ArgParser::parseShortArg(int index)
                 return;
             }
         }
-        std::string err;
-        err += "Argument not recognized [ ";
-        err += _argv[index];
-        err += " ]";
-        _error_msgs.push_back(err);
+        addToStringList(_error_msgs, "Argument not recognized [ ", _argv[index], " ]");
     } else if(len > 2){
         for(auto i = 1; i < len; ++i){
             bool found = false;
@@ -128,16 +140,9 @@ void ArgParser::parseShortArg(int index)
                 }
             }
             if(!found){
-                std::string err;
-                err += "Argument not recognized [ ";
-                err += c;
-                err += " ] in [ ";
-                err += _argv[index];
-                err += " ]";
-                _error_msgs.push_back(err);
+                addToStringList(_error_msgs, "Argument not recognized [ ", _argv[index], " ] in [ ", _argv[index], " ]");
             }
         }
-
     }
 }
 
@@ -148,11 +153,7 @@ void ArgParser::parseDefaultArg(int index)
             setArgValue(argument, index);
             return;
         } else {
-            std::string err;
-            err += "No default argument for [ ";
-            err += _argv[index];
-            err += " ]";
-            _error_msgs.push_back(err);
+            addToStringList(_error_msgs, "Not expecting unnamed argument [ ", _argv[index], " ]");
         }
     }
 }
@@ -167,22 +168,12 @@ void ArgParser::setArgValue(cmdl_arg& argument, int index)
             char* idx;
             *value = std::strtol(_argv[index + 1], &idx, 10);
             if(_argv[index+1] + std::strlen(_argv[index+1]) != idx ){
-                std::string err;
-                err += "Unable to interpet input ";
-                err += _argv[index + 1];
-                err += " as integer input to ";
-                err += argument.argument;
-                err += ", ";
-                err += argument.short_argument;
-                _error_msgs.push_back(err);
+                addToStringList(_error_msgs, "Unable to interpet input ", _argv[index + 1], " as int input to ", argument.argument, ", ", argument.short_argument);
+
             }
             _next_read = true;
         } else {
-            std::string err = "No argument provided for ";
-            err += argument.argument;
-            err += ", ";
-            err += argument.short_argument;
-            _error_msgs.push_back(err);
+            addToStringList(_error_msgs, "No argument provided for ", argument.argument,", ",argument.short_argument);
         }
         break;
     }
@@ -193,22 +184,11 @@ void ArgParser::setArgValue(cmdl_arg& argument, int index)
             char* idx;
             *value = std::strtof(_argv[index + 1], &idx);
             if(*idx != '\0'){
-                std::string err;
-                err += "Unable to interpet input ";
-                err += _argv[index + 1];
-                err += " as float input to ";
-                err += argument.argument;
-                err += ", ";
-                err += argument.short_argument;
-                _error_msgs.push_back(err);
+                addToStringList(_error_msgs, "Unable to interpet input ", _argv[index + 1], " as float input to ", argument.argument, ", ", argument.short_argument);
             }
             _next_read = true;
         } else {
-            std::string err = "No argument provided for ";
-            err += argument.argument;
-            err += ", ";
-            err += argument.short_argument;
-            _error_msgs.push_back(err);
+            addToStringList(_error_msgs, "No argument provided for ", argument.argument,", ",argument.short_argument);
         }
         break;
     }
@@ -220,11 +200,7 @@ void ArgParser::setArgValue(cmdl_arg& argument, int index)
             value = _argv[index + 1];
             _next_read = true;
         } else {
-            std::string err = "No argument provided for ";
-            err += argument.argument;
-            err += ", ";
-            err += argument.short_argument;
-            _error_msgs.push_back(err);
+            addToStringList(_error_msgs, "No argument provided for ", argument.argument,", ",argument.short_argument);
         }
         break;
     }

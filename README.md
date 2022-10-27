@@ -2,7 +2,7 @@
 
 An opinionated command line input parsing tool.
 
-Partially an example for myself on how to call C++ code in C. Partially a way to parse cmd line inputs the way I like to pass in command line inputs.
+Partially an example for myself on variadic templates and how to call C++ code in C. Partially a way to parse cmd line inputs the way I like to pass in command line inputs.
 
 ## Supported arguments
 
@@ -20,29 +20,9 @@ my_app -i
 
 #### Chained single letter arguments
 
-This
+`my_app -i -c -u` is equivalent to `my_app -icu`
 
-`
-my_app -i -c -u
-`
-
-is equivalent to this
-
-`
-my_app -icu
-`
-
-and this
-
-`
-my_app -a -b 5 -c 5
-`
-
-is equivalent to this
-
-`
-my_app -abc 5
-`
+`my_app -a -b 5 -c 5` is equivalent to `my_app -abc 5`
 
 ### Default arguments
 
