@@ -8,21 +8,31 @@ Partially an example for myself on variadic templates and how to call C++ code i
 
 ### GNU-style multi-letter arguments
 
-`
-my_app --command
-`
+`my_app --command`
+
+`my_app --command 1`
+
+`my_app --command 1.5`
+
+`my_app --command 'something'`
 
 ### Single letter arguments
 
-`
-my_app -i
-`
+`my_app -i`
+
+`my_app -i 2`
+
+`my_app -i 2.3`
+
+`my_app -i 'something else'`
 
 #### Chained single letter arguments
 
 `my_app -i -c -u` is equivalent to `my_app -icu`
 
 `my_app -a -b 5 -c 5` is equivalent to `my_app -abc 5`
+
+This last behavior might be a bit contentious, as there is some sort of implicit sharing of input arguments (both `b` and `c` are accepting the input 5) while arguments that don't accept arguments will ignore this (like `a` above).
 
 ### Default arguments
 
